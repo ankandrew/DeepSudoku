@@ -1,5 +1,6 @@
 import torch
-# TODO: Verify that is a valid sudoku with:
+# TODO: In grid_accuracy add Validator
+#       (In the case it is correct but different to ground truth):
 # from .validator import Validator
 
 

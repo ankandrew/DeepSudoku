@@ -1,8 +1,6 @@
-"""
-... responsible for generating sudokus
-"""
 import numpy as np
 from .validator import Validator
+from typing import Tuple
 
 
 class Generator(Validator):
@@ -21,7 +19,7 @@ class Generator(Validator):
         x = self.remove_numbers(y)
         return x, y
 
-    def generate_dataset(self, n: int) -> tuple[np.ndarray, np.ndarray]:
+    def generate_dataset(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
         x_l = []
         y_l = []
         for _ in range(n):
@@ -29,11 +27,11 @@ class Generator(Validator):
             x = self.remove_numbers(y)
             x_l.append(x)
             y_l.append(y)
-        return np.asarray(x_l, dtype=np.float32), np.asarray(y_l, dtype=np.float32)
+        return np.asarray(x_l), np.asarray(y_l)
 
     def generate(self, shuffle: bool = True) -> np.ndarray:
         # 1. Generate 9 non-repeating random values from [0, 9]
-        row_1 = np.random.choice(range(1, 10), 9, replace=False)
+        row_1 = np.random.choice(range(1, 10), 9, replace=False).astype(np.int8)
         # 2. Shift of the first line by three slots.
         row_2 = np.roll(row_1, -3)
         # 3. Shift of the second line by three slots.
