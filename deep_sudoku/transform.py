@@ -25,23 +25,27 @@ class ToTensor:
             # Convert to Tensors
             x = torch.tensor(x, dtype=torch.float32)
             # Re-scale x
-            x = self.__normalize(x)
+            x = self.normalize(x)
             # Add channel dimension
             x = torch.unsqueeze(x, dim=0)
-        y -= 1  # Make y class index of range [0, C−1]
-        y = torch.tensor(y, dtype=torch.long)
+        y = torch.tensor(y - 1, dtype=torch.long)  # Make y class index of range [0, C−1]
         return x, y
 
     @staticmethod
-    def one_hot_matrix(x: np.ndarray) -> np.ndarray:
+    def one_hot_matrix(x: np.ndarray, calc_max: bool = False) -> np.ndarray:
         """
         One-hots each row and col elements of a matrix
         x is converted from (row, cols) -> (one_hot, row, cols)
         Modified from: https://stackoverflow.com/a/36960495
         :param x: Array containing the 2D matrix, shape expected (row, cols)
+        :param calc_max: Whether to calculate the max from parameter x
         :return: 3D array containing one-hot coded elements in channels first format
         """
-        ncols = int(x.max() + 1)
+        if calc_max:
+            ncols = int(x.max() + 1)
+        else:
+            # Sudoku uses (0, 9) where 0 represents blank
+            ncols = 10
         out = np.zeros((x.size, ncols), dtype=np.uint8)
         out[np.arange(x.size), x.ravel()] = 1
         out.shape = x.shape + (ncols,)
