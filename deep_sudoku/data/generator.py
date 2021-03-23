@@ -12,7 +12,6 @@ class Generator(Validator):
 
     def __init__(self):
         super(Generator, self).__init__()
-        # self.grid = np.zeros((9, 9), dtype=np.int8)
 
     def __call__(self):
         y = self.generate(shuffle=True)

@@ -5,6 +5,9 @@ class Validator:
     def __init__(self):
         self.to_compare = np.arange(1, 10)
 
+    def __call__(self, grid):
+        return self.validate(grid)
+
     def validate(self, grid: np.ndarray) -> bool:
         valid = True
         if not self.val_sub_grids(grid):
