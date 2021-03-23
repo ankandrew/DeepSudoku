@@ -1,4 +1,9 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.com/ankandrew/DeepSudoku.svg?branch=main)](https://travis-ci.com/ankandrew/DeepSudoku)
+
+
 ![Deep Sudoku Image](img/Sudoku_Github.png "Title")
+
 
 ### Intro
 
@@ -8,7 +13,7 @@ Using neural nets to learn how to play Sudoku through Supervised Learning.
 
 ### Requirements
 
-Python 3.6+ is required among with the packages found in [requirements.txt](requirements.txt)
+Python 3.7+ is required among with the packages found in [requirements.txt](requirements.txt)
 
 ### Generate
 
