@@ -43,8 +43,6 @@ class Generator(Validator):
         row_7 = np.roll(row_6, -1)
         row_8 = np.roll(row_7, -3)
         row_9 = np.roll(row_8, -3)
-        # Validate
-        # self.validate()
         grid = np.vstack((
             row_1, row_2, row_3,
             row_4, row_5, row_6,
