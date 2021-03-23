@@ -8,10 +8,10 @@ class TestMetric(unittest.TestCase):
         y_hat = torch.arange(4*9*9).reshape(4, 9, 9)
         y = y_hat.clone()
         # Without modifying y
-        self.assertEqual(grid_accuracy(y_hat, y), 4)
+        self.assertEqual(grid_accuracy(y_hat, y, valid=False), 4)
         # Modifying one element
         y[1, 0, 2] = 1000
-        self.assertEqual(grid_accuracy(y_hat, y), 3)
+        self.assertEqual(grid_accuracy(y_hat, y, valid=False), 3)
 
     def test_accuracy(self):
         y_hat = torch.ones(4, 9, 9)
