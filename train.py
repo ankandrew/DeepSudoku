@@ -10,7 +10,7 @@ from evaluate import eval_model
 # TESTING
 cfg = {
     'epochs': 150,
-    'lr': 1e-4,
+    'lr': 5e-3,
     'batch_size': 64,
     'n_train': 10000,
     'n_test': 200,
@@ -65,7 +65,7 @@ def train():
         print(f'loss {train_loss:.6f} accuracy {train_acc:.6f} grid_acc {train_grid_acc:.6f}\n'
               f'test_loss {test_loss:.6f} test_accuracy {test_acc:.6f} test_grid_acc {test_grid_acc:.6f}\n'
               f'Time: {(timer() - start):.3f} seconds')
-        return model
+    return model
 
 
 if __name__ == '__main__':
