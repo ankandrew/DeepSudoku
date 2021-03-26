@@ -1,11 +1,12 @@
 import numpy as np
+# TODO: Make pytorch implementation to avoid GPU -> CPU transfers
 
 
 class Validator:
     def __init__(self):
         self.to_compare = np.arange(1, 10)
 
-    def __call__(self, grid):
+    def __call__(self, grid: np.ndarray) -> bool:
         return self.validate(grid)
 
     def validate(self, grid: np.ndarray) -> bool:
