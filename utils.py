@@ -1,6 +1,29 @@
 import torch
 from deep_sudoku.data.validator import Validator
 from deep_sudoku.metric import grid_accuracy
+from deep_sudoku.transform import ToTensor
+from typing import Union
+import numpy as np
+import random
+
+from deep_sudoku.model import SudokuMLP
+
+
+def seed_all(seed: int = 1234) -> None:
+    """
+    Make code reproducible, taken from:
+    https://discuss.pytorch.org/t/reproducibility-with-all-the-bells-and-whistles/81097
+
+    :param seed: Seed to use in numpy, torch and python random module
+    """
+    print("[ Using Seed : ", seed, " ]")
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.cuda.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def verify_solution(y_hat: torch.Tensor, y: torch.Tensor = None) -> None:
