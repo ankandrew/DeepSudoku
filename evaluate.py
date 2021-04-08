@@ -21,7 +21,7 @@ def eval_model(device, model, dataloader, loss_fn) -> Tuple[float, float, float]
             # Find the corresponding class
             _, y_hat_test = y_hat_test.max(dim=1)  # Out shape -> (batch, 9, 9)
             # Check accuracy
-            grid_acc += grid_accuracy(y_hat_test, y)
+            grid_acc += grid_accuracy(y_hat_test, y, valid=False)  # Speed-up training valid=False
             acc += accuracy(y_hat_test, y)
         loss /= total
         grid_acc /= total

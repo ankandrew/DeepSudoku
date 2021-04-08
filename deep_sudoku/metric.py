@@ -27,8 +27,9 @@ def grid_accuracy(y_hat: torch.Tensor, y: torch.Tensor, valid: bool = True) -> f
     mask = torch.eq(y_hat, y)
     b, h, w = mask.shape
     mask_2d = mask.view(b, h * w)
-    final_mask = torch.all(mask_2d, dim=1).cpu()
+    final_mask = torch.all(mask_2d, dim=1)
     if valid:
+        final_mask = final_mask.cpu()
         vals = []
         val = Validator()
         for grid in y_hat:
