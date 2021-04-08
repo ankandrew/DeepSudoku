@@ -59,9 +59,9 @@ class FullyConnected(nn.Module):
                     layers.append(nn.BatchNorm1d(self.layers[i + 1]))
                 if self.activation:
                     layers.append(nn.ReLU())
+                if self.dropout_rate:
+                    layers.append(nn.Dropout(self.dropout_rate))
             # Last case (no activation)
             else:
                 layers.append(nn.Linear(self.layers[i], self.layers[i + 1]))
-            if self.dropout_rate:
-                layers.append(nn.Dropout(self.dropout_rate))
         return nn.Sequential(*layers)
