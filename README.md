@@ -79,7 +79,7 @@ x, y = gen.generate_dataset(n=10_000)
 ### Validate
 
 The [Validator](deep_sudoku/data/validator.py) class is responsible for validating a sudoku. For example If we want to
-validate the following Sudoku
+validate the following Sudoku:
 
 ```python
 from deep_sudoku.data.validator import Validator
@@ -104,6 +104,53 @@ val(sudoku)
 
 ### Train
 
-To train run `train.py`. Hyper-parameters to tweak can be found in the same file.
+To train run `train.py`. Usage:
 
+```
+usage: train.py [-h] [--epochs EPOCHS] [--lr LR] [--batch BATCH_SIZE]
+                [--n-train N_TRAIN] [--n-test N_TEST] [--device DEVICE]
 
+Sudoku Model Training
+
+optional arguments:
+  -h, --help          show this help message and exit
+  --epochs EPOCHS     Number of epochs for model to train (default = 350)
+  --lr LR             Initial learning rate (default = 0.0001)
+  --batch BATCH_SIZE  Bactch size (default = 128)
+  --n-train N_TRAIN   Number of sudokus to generate for training (default = 10
+                      000)
+  --n-test N_TEST     Number of sudokus to generate for test (default = 2 500)
+  --device DEVICE     Device to be used for training/testing (default = cpu)
+```
+
+### Metrics
+
+With the following naming convention:
+
+![Conventions](img/sudoku_parts.jpg)
+
+We define two different metrics:
+* **Accuracy**: measures what porcentage of cells were correctly classified compared to the ground truth.
+* **Grid Accuracy**: measures what porcentage of entire sudoku grids were classified correctly. 
+
+**_Grid accuracy_** is preferred since it classifies as correct a sudoku that has a
+**valid solution** and may be different to groundth truth (there are more than
+one solution sometimes). More about the metrics can be found at [metric.py](deep_sudoku/metric.py).
+
+#### Models comparison
+
+| Architecture        | Accuracy  | Grid Accuracy  |
+| :-------------: |:-------------:| -----:|
+| Dense       | -  | -  |
+| Conv        | -  |  - |
+| Recurrent (Encoder + Decoder) | -  | - |
+| Transformer | -  | -  |
+
+### TODO
+
+- [x] Dense/Conv models
+- [ ] Recurrent(Encoder/Decoder) model
+- [ ] Transformer
+- [ ] Model checkpoints
+- [ ] Reproducible trained models
+- [ ] Optimize Grid Accuracy speed
