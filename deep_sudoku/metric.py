@@ -1,4 +1,5 @@
 import torch
+
 from .data.validator import Validator
 
 

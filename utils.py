@@ -1,12 +1,17 @@
+import os.path
+import random
+from typing import Union
+
+import numpy as np
 import torch
+from torch.utils.data import DataLoader
+
+from deep_sudoku.data.dataset import SudokuDataset
+from deep_sudoku.data.generator import Generator
 from deep_sudoku.data.validator import Validator
 from deep_sudoku.metric import grid_accuracy
-from deep_sudoku.transform import ToTensor
-from typing import Union
-import numpy as np
-import random
-
 from deep_sudoku.model import SudokuMLP
+from deep_sudoku.transform import ToTensor
 
 
 def seed_all(seed: int = 1234) -> None:
@@ -39,14 +44,13 @@ def verify_solution(y_hat: torch.Tensor, y: torch.Tensor = None) -> None:
     total = y_hat.size(0)
     valid_count = 0
     for grid in y_hat:
-        # Convert grid from [0, C-1] to [1, C]
-        if val(grid.numpy() + 1):
+        if val(grid.numpy()):
             valid_count += 1
     total_valid = valid_count
     print(f'Valid solutions {total_valid} out of {total} ({(100 * total_valid / total):.2f}%)')
     # "Correct" solution (same as ground truth)
-    if y:
-        correct_grids = grid_accuracy(y_hat, y)
+    if y is not None:
+        correct_grids = grid_accuracy(y_hat, y, valid=False)
         print(f'"Correct" solutions {correct_grids} out of {total} ({(100 * correct_grids / total):.2f}%)')
 
 
@@ -57,7 +61,7 @@ def one_hot_matrix(x: torch.Tensor, calc_max: bool = False) -> torch.Tensor:
         # Sudoku uses (0, 9) where 0 represents blank
         ncols = 10
     out = torch.zeros((x.numel(), ncols), dtype=torch.uint8)
-    out[torch.arange(x.numel()), x.view(-1)] = 1
+    out[torch.arange(x.numel()), x.reshape(-1)] = 1
     out = out.view(x.shape + (ncols,))
     out = torch.movedim(out, -1, 0)  # Make it channels first
     return out
@@ -77,21 +81,38 @@ def preprocess(x: Union[np.ndarray, torch.Tensor]):
     return x
 
 
-def predict(model, x: Union[np.ndarray, torch.Tensor]):
+def predict(model, x: Union[np.ndarray, torch.Tensor], do_preprocess=True):
     # Preprocess input
-    x = preprocess(x).contiguous()
+    if do_preprocess:
+        x = preprocess(x).contiguous()
     # Avoid gradient calculations
     with torch.no_grad():
         pred = model(x)
         pred = pred.reshape(-1, 9, 9, 9)
         _, pred = pred.max(dim=1)
+        # Scale from [0, num_classes-1] -> [1, num_classes]
         pred += 1
     return pred
 
 
 def parse_str(sudoku: str) -> np.ndarray:
     """
-    Parse a sudoku from a string to a np array
+    Parse a sudoku from a string to a np array.
+
+    Example:
+
+    game = '''
+          0 8 0 0 3 2 0 0 1
+          7 0 3 0 8 0 0 0 2
+          5 0 0 0 0 7 0 3 0
+          0 5 0 0 0 1 9 7 0
+          6 0 0 7 0 9 0 0 8
+          0 4 7 2 0 0 0 5 0
+          0 2 0 6 0 0 0 0 9
+          8 0 0 0 9 0 3 0 5
+          3 0 0 8 2 0 0 1 0
+      '''
+    array_2d = parse_str(game)
 
     :param sudoku: String representing a Sudoku where rows
     are separated by a new line
@@ -99,83 +120,3 @@ def parse_str(sudoku: str) -> np.ndarray:
     """
     sudoku = sudoku.replace(' ', '').replace('\n', '')
     return np.asarray([int(i) for i in sudoku], dtype=np.int8).reshape((9, 9))
-
-# Test
-
-# a1 = np.array(
-#     [
-#         [0, 0, 7, 5, 0, 0, 0, 0, 0],
-#         [0, 0, 0, 0, 1, 0, 0, 4, 0],
-#         [8, 0, 5, 7, 0, 0, 0, 0, 0],
-#         [6, 0, 9, 0, 0, 0, 0, 0, 0],
-#         [0, 4, 0, 0, 6, 0, 0, 1, 0],
-#         [0, 0, 0, 0, 0, 0, 5, 0, 3],
-#         [0, 0, 0, 0, 0, 5, 2, 0, 8],
-#         [0, 6, 0, 0, 3, 0, 0, 0, 0],
-#         [0, 0, 0, 0, 0, 8, 3, 0, 0]
-#     ], np.int8)
-#
-# a2 = np.array(
-#     [
-#         [9, 0, 0, 4, 0, 2, 0, 0, 5],
-#         [0, 0, 2, 0, 0, 0, 7, 0, 0],
-#         [0, 0, 0, 6, 8, 0, 0, 0, 0],
-#         [1, 0, 0, 0, 0, 0, 2, 0, 4],
-#         [0, 0, 9, 0, 0, 0, 8, 0, 0],
-#         [5, 0, 3, 0, 0, 0, 0, 0, 6],
-#         [0, 0, 0, 0, 6, 7, 0, 0, 0],
-#         [0, 0, 4, 0, 0, 0, 9, 0, 0],
-#         [6, 0, 0, 1, 0, 3, 0, 0, 7]
-#     ], np.int8)
-#
-# a3 = np.array(
-#     [
-#         [0, 0, 0, 0, 5, 0, 0, 0, 0],
-#         [0, 8, 7, 0, 3, 0, 0, 6, 0],
-#         [0, 0, 0, 8, 0, 4, 0, 2, 0],
-#         [0, 0, 5, 0, 0, 0, 4, 0, 0],
-#         [2, 9, 0, 0, 0, 0, 0, 1, 7],
-#         [0, 0, 6, 0, 0, 0, 9, 0, 0],
-#         [0, 7, 0, 1, 0, 8, 0, 0, 0],
-#         [0, 1, 0, 0, 6, 0, 5, 4, 0],
-#         [0, 0, 0, 0, 2, 0, 0, 0, 0]
-#     ], np.int8)
-#
-# a4 = np.array(
-#     [
-#         [0, 4, 0, 3, 0, 2, 0, 7, 8],
-#         [0, 0, 0, 0, 0, 0, 0, 0, 0],
-#         [9, 1, 0, 0, 0, 0, 0, 3, 5],
-#         [3, 0, 0, 9, 0, 6, 0, 0, 1],
-#         [0, 0, 0, 0, 8, 0, 0, 0, 0],
-#         [2, 0, 0, 1, 0, 5, 0, 0, 9],
-#         [1, 8, 0, 0, 0, 0, 0, 4, 6],
-#         [0, 0, 0, 0, 0, 0, 0, 0, 0],
-#         [0, 3, 0, 7, 0, 9, 0, 1, 0]
-#     ], np.int8)
-#
-# # Load model
-# model = SudokuMLP([10 * 9 * 9, 120, 120, 9 * 9 * 9], batch_norm=False, dropout_rate=0.5)
-# model.load_state_dict(torch.load('C:/Users/Anka/Downloads/sudoku_model.pth'))
-# # Set model to eval (turns off dropout e.g.)
-# model.eval()
-# res = predict(model, a4)
-# print(res)
-# # Check if is valid solution
-# val = Validator()
-# print(f' Is a valid ? {val(res[0].numpy())}')
-# print()
-
-# game = '''
-#           0 8 0 0 3 2 0 0 1
-#           7 0 3 0 8 0 0 0 2
-#           5 0 0 0 0 7 0 3 0
-#           0 5 0 0 0 1 9 7 0
-#           6 0 0 7 0 9 0 0 8
-#           0 4 7 2 0 0 0 5 0
-#           0 2 0 6 0 0 0 0 9
-#           8 0 0 0 9 0 3 0 5
-#           3 0 0 8 2 0 0 1 0
-#       '''
-#
-# print(parse_str(game))
