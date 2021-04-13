@@ -1,14 +1,15 @@
-import torch
-from torch import optim, nn
-from deep_sudoku.data.dataset import SudokuDataset
-from torch.utils.data import DataLoader
-from deep_sudoku.transform import ToTensor
-from deep_sudoku.model import SudokuMLP, MultiBranchSudoku
-from timeit import default_timer as timer
-from evaluate import eval_model
-from utils import seed_all
 import argparse
 import copy
+from timeit import default_timer as timer
+
+from torch import optim, nn
+from torch.utils.data import DataLoader
+
+from deep_sudoku.data.dataset import SudokuDataset
+from deep_sudoku.model import SudokuMLP
+from deep_sudoku.transform import ToTensor
+from evaluate import eval_model
+from utils import seed_all
 
 
 def train(args):
@@ -21,7 +22,7 @@ def train(args):
     best_model, best_accuracy = None, 0.0
 
     # Initialize model
-    model = SudokuMLP([10 * 9 * 9, 64, 64, 64, 64, 64, 9 * 9 * 9], batch_norm=False, dropout_rate=None).to(args.device)
+    model = SudokuMLP([10 * 9 * 9, 512, 9 * 9 * 9], batch_norm=True, dropout_rate=0.5).to(args.device)
     # model = MultiBranchSudoku(input_channels=10).to(args.device)
     # Define Loss / Optimizer
     optimizer = optim.Adam(model.parameters(), args.lr)
@@ -84,14 +85,14 @@ if __name__ == '__main__':
     # args = parser.parse_args(
     #     [
     #         '--epochs', '100',
-    #         '--lr', '0.0001',
+    #         '--lr', '1e-3',
     #         '--batch', '128',
-    #         '--n-train', '100',
-    #         '--n-test', '20',
+    #         '--n-train', '50_000',
+    #         '--n-test', '2_000',
     #         '--device', 'cuda'
     #     ]
     # )
-    args = parser.parse_args()
+    # # args = parser.parse_args()
     start = timer()
     model = train(args)
     print(f'Time taken {timer() - start} s')
