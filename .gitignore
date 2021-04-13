@@ -1,2 +1,5 @@
 .idea/
+debug.py
 __pycache__
+sudoku_model.pth
+deep_sudoku/data/1m_sudoku_dataset_parsed.csv
