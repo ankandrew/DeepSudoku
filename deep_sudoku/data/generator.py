@@ -1,6 +1,6 @@
+from typing import Tuple
 import numpy as np
 from .validator import Validator
-from typing import Tuple
 
 
 class Generator(Validator):
@@ -13,17 +13,17 @@ class Generator(Validator):
     def __init__(self):
         super(Generator, self).__init__()
 
-    def __call__(self):
+    def __call__(self, a: float = 0.5, b: float = 0.65):
         y = self.generate(shuffle=True)
         x = self.remove_numbers(y)
         return x, y
 
-    def generate_dataset(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
+    def generate_dataset(self, n: int, a: float, b: float) -> Tuple[np.ndarray, np.ndarray]:
         x_l = []
         y_l = []
         for _ in range(n):
             y = self.generate(shuffle=True)
-            x = self.remove_numbers(y)
+            x = self.remove_numbers(y, a, b)
             x_l.append(x)
             y_l.append(y)
         return np.asarray(x_l), np.asarray(y_l)
@@ -61,8 +61,8 @@ class Generator(Validator):
         return grid
 
     @staticmethod
-    def remove_numbers(grid: np.ndarray) -> np.ndarray:
-        p_ones = np.random.uniform(0.6, 0.8)
+    def remove_numbers(grid: np.ndarray, a: float, b: float) -> np.ndarray:
+        p_ones = np.random.uniform(a, b)
         erase_vol = np.random.choice([0, 1], size=(9, 3, 3), p=[1 - p_ones, p_ones])
         grid = grid.reshape((9, 3, 3)) * erase_vol
         grid = grid.reshape((9, 9))
