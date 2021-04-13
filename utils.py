@@ -1,16 +1,11 @@
-import os.path
 import random
 from typing import Union
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
 
-from deep_sudoku.data.dataset import SudokuDataset
-from deep_sudoku.data.generator import Generator
 from deep_sudoku.data.validator import Validator
 from deep_sudoku.metric import grid_accuracy
-from deep_sudoku.model import SudokuMLP
 from deep_sudoku.transform import ToTensor
 
 

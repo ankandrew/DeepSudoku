@@ -92,7 +92,8 @@ if __name__ == '__main__':
     #         '--device', 'cuda'
     #     ]
     # )
-    # # args = parser.parse_args()
+
+    args = parser.parse_args()
     start = timer()
     model = train(args)
     print(f'Time taken {timer() - start} s')

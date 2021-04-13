@@ -15,7 +15,7 @@ class Generator(Validator):
 
     def __call__(self, a: float = 0.5, b: float = 0.65):
         y = self.generate(shuffle=True)
-        x = self.remove_numbers(y)
+        x = self.remove_numbers(y, a, b)
         return x, y
 
     def generate_dataset(self, n: int, a: float, b: float) -> Tuple[np.ndarray, np.ndarray]:
