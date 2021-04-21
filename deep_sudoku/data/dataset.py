@@ -30,7 +30,7 @@ class SudokuDataset(Dataset):
             ds_path = Path(__file__).parent / filename
             # Download if missing
             download_url(f'https://github.com/ankandrew/DeepSudoku/releases/download/v0.1-alpha/{filename}', ds_path)
-            ds = pd.read_csv(ds_path, header=None, dtype='uint8').to_numpy()
+            ds = pd.read_csv(ds_path, header=None, dtype='uint8').sample(frac=1).to_numpy()
             self.x, self.y = ds[:, :81].reshape(-1, 9, 9), ds[:, 81:].reshape(-1, 9, 9)
         self.transform = transform
 
