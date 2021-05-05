@@ -14,7 +14,6 @@ class SudokuDataset(Dataset):
         :param a: Lower bound probability for keeping values. Must be >= 0
         :param b: Upper bound probability for keeping values. Must be <= 1
         :param from_generator: Wether to generate Sudoku games from Generator
-        class or to use the 1 million sudoku dataset from Kaggle
 
         Example: if a and b are set to 0.6 and 0.8 respectively, the probability
         of blanking (filling w/ zeros) cells at random will be 1 - 0.6 and 1 - 0.8.
