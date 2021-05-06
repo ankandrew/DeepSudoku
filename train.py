@@ -7,7 +7,7 @@ from torch import optim, nn
 from torch.utils.data import DataLoader
 
 from deep_sudoku.data.dataset import SudokuDataset
-from deep_sudoku.model import SudokuMLP, MultiBranchSudoku
+from deep_sudoku.model import SudokuMLP, MultiBranchSudoku, RNN
 from deep_sudoku.transform import ToTensor
 from evaluate import eval_model
 from utils import seed_all
@@ -30,7 +30,7 @@ def train(args, model, optimizer, loss_fn, train_loader, test_loader):
     # Training loop
     # total_steps = len(train_loader)
     for epoch in range(args.epochs):
-        # model.train()
+        model.train()
         print(f'Epoch {epoch}/{args.epochs - 1}')
         print('-' * 10)
         start = timer()
@@ -38,6 +38,7 @@ def train(args, model, optimizer, loss_fn, train_loader, test_loader):
             # Move to corresponding device
             x = x.to(args.device)
             y = y.to(args.device)
+            x = x.reshape((x.size(0), 81, 10))
             # Zero the parameter gradients
             optimizer.zero_grad()
             # Forward pass
@@ -80,7 +81,7 @@ def main():
                         help='Number of sudokus to generate for training (default = 10 000)')
     parser.add_argument('--n-test', type=int, default=2_500,
                         help='Number of sudokus to generate for test (default = 2 500)')
-    parser.add_argument('--device', type=str, default='cpu',
+    parser.add_argument('--device', type=str, default='cuda',
                         help='Device to be used for training/testing (default = cpu)')
     args = parser.parse_args()
 
@@ -106,7 +107,15 @@ def main():
 
     # Initialize model
     # model = SudokuMLP([10 * 9 * 9, 512, 9 * 9 * 9], batch_norm=True, dropout_rate=0.5).to(args.device)
-    model = MultiBranchSudoku(input_channels=10).to(args.device)
+    # model = MultiBranchSudoku(input_channels=10).to(args.device)
+    model = RNN(input_size=10,
+                hidden_size=128,
+                n_layers=1,
+                rnn_type='lstm',
+                fc_layers=[128, 9],
+                fc_bn=True,
+                fc_dropout=0.25,
+                bidirectional=False).to(args.device)
 
     # Define Loss & Optimizer
     optimizer = optim.Adam(model.parameters(), args.lr)
