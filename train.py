@@ -2,70 +2,72 @@ import argparse
 import copy
 from timeit import default_timer as timer
 
+import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader
 
 from deep_sudoku.data.dataset import SudokuDataset
-from deep_sudoku.model import SudokuMLP
+from deep_sudoku.model import SudokuMLP, MultiBranchSudoku, RNN
 from deep_sudoku.transform import ToTensor
 from evaluate import eval_model
 from utils import seed_all
 
 
-def train(args):
-    train_dataset = SudokuDataset(n=args.n_train, transform=ToTensor(one_hot=True))
-    test_dataset = SudokuDataset(n=args.n_test, transform=ToTensor(one_hot=True))
+def train(args, model, optimizer, loss_fn, train_loader, test_loader):
+    """
+    Train and validates a `model` with `optimizer` based on `train_loader` and
+    `test_loader` respectively. Training and testing settings is based on `args`.
 
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
-
-    best_model, best_accuracy = None, 0.0
-
-    # Initialize model
-    model = SudokuMLP([10 * 9 * 9, 512, 9 * 9 * 9], batch_norm=True, dropout_rate=0.5).to(args.device)
-    # model = MultiBranchSudoku(input_channels=10).to(args.device)
-    # Define Loss / Optimizer
-    optimizer = optim.Adam(model.parameters(), args.lr)
-    loss = nn.CrossEntropyLoss()
+    :param args: Namespace containing config for epochs and device
+    :param model: model to train
+    :param optimizer: optimizer used to update parameters
+    :param loss_fn: loss fn to be used
+    :param train_loader: dataloader responsible for training
+    :param test_loader: dataloader responsible for testing
+    :return: Tuple of (model, optimizer) of the best test_grid_acc epoch
+    """
+    best_model, best_optimizer, best_accuracy = None, None, 0.0
     # Training loop
     # total_steps = len(train_loader)
     for epoch in range(args.epochs):
-        # model.train()
+        model.train()
         print(f'Epoch {epoch}/{args.epochs - 1}')
         print('-' * 10)
         start = timer()
         for i, (x, y) in enumerate(train_loader):
-            # Zero the parameter gradients
-            optimizer.zero_grad()
             # Move to corresponding device
             x = x.to(args.device)
             y = y.to(args.device)
+            x = x.reshape((x.size(0), 81, 10))
+            # Zero the parameter gradients
+            optimizer.zero_grad()
             # Forward pass
             y_hat = model(x)  # Out shape -> (batch, 729, 1, 1)
             # Reshape (batch, 729, 1, 1) -> (batch, 9, 9, 9)
             # Where dim=1 corresponds to the Class
             y_hat = y_hat.view(-1, 9, 9, 9)
             # Calculate loss
-            output = loss(y_hat, y)
+            loss = loss_fn(y_hat, y)
             # Backward pass
-            output.backward()
+            loss.backward()
             # Update weights
             optimizer.step()
         # Validate accuracy
         model.eval()
-        test_loss, test_acc, test_grid_acc = eval_model(args.device, model, test_loader, loss)
+        test_loss, test_acc, test_grid_acc = eval_model(args.device, model, test_loader, loss_fn)
         if test_grid_acc > best_accuracy:
             best_accuracy = test_grid_acc
             best_model = copy.deepcopy(model)
+            best_optimizer = copy.deepcopy(optimizer)
         # Metrics
-        train_loss, train_acc, train_grid_acc = eval_model(args.device, model, train_loader, loss)
+        train_loss, train_acc, train_grid_acc = eval_model(args.device, model, train_loader, loss_fn)
         print(f'loss {train_loss:.6f} accuracy {train_acc:.6f} grid_acc {train_grid_acc:.6f}\n'
-              f'test_loss {test_loss:.6f} test_accuracy {test_acc:.6f} test_grid_acc {test_grid_acc:.6f}\n'
+              f'test_loss {test_loss:.6f} test_accuracy {test_acc:.10f} test_grid_acc {test_grid_acc:.6f}\n'
               f'Time: {(timer() - start):.3f} seconds')
-    return best_model
+    return best_model, best_optimizer
 
 
-if __name__ == '__main__':
+def main():
     # Make reproducible
     seed_all(1234)
     parser = argparse.ArgumentParser(description='Sudoku Model Training')
@@ -79,22 +81,56 @@ if __name__ == '__main__':
                         help='Number of sudokus to generate for training (default = 10 000)')
     parser.add_argument('--n-test', type=int, default=2_500,
                         help='Number of sudokus to generate for test (default = 2 500)')
-    parser.add_argument('--device', type=str, default='cpu',
-                        help='Device to be used for training/testing (default = cpu)')
+    parser.add_argument('--device', type=str, default='cuda',
+                        help='Device to be used for training/testing (default = cuda)')
+    args = parser.parse_args()
+
     # # Testing
     # args = parser.parse_args(
     #     [
-    #         '--epochs', '100',
+    #         '--epochs', '25',
     #         '--lr', '1e-3',
-    #         '--batch', '128',
-    #         '--n-train', '50_000',
-    #         '--n-test', '2_000',
-    #         '--device', 'cuda'
+    #         '--batch', '64',
+    #         '--n-train', '500',
+    #         '--n-test', '200',
+    #         '--device', 'cpu'
     #     ]
     # )
 
-    args = parser.parse_args()
+    # Create datasets
+    train_dataset = SudokuDataset(n=args.n_train, transform=ToTensor(one_hot=True), a=.55, b=.95)
+    test_dataset = SudokuDataset(n=args.n_test, transform=ToTensor(one_hot=True), a=.55, b=.95)
+
+    # Create loaders
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
+
+    # Initialize model
+    # model = SudokuMLP([10 * 9 * 9, 512, 9 * 9 * 9], batch_norm=True, dropout_rate=0.5).to(args.device)
+    # model = MultiBranchSudoku(input_channels=10).to(args.device)
+    model = RNN(input_size=10,
+                hidden_size=128,
+                n_layers=1,
+                rnn_type='lstm',
+                fc_layers=[128, 9],
+                fc_bn=True,
+                fc_dropout=0.25,
+                bidirectional=False).to(args.device)
+
+    # Define Loss & Optimizer
+    optimizer = optim.Adam(model.parameters(), args.lr)
+    loss_fn = nn.CrossEntropyLoss()
+
+    # Pre-training
+    print(f'{"#" * 40}\n--- Pre-Training ----\n{"#" * 40}')
+    # Train loop
     start = timer()
-    model = train(args)
+    model2, _ = train(args, model, optimizer, loss_fn, train_loader, test_loader)
     print(f'Time taken {timer() - start} s')
-    # torch.save(model.state_dict(), './sudoku_model.pth')
+
+    # Save best model
+    torch.save(model2.state_dict(), './sudoku_model.pth')
+
+
+if __name__ == '__main__':
+    main()

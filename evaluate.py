@@ -11,6 +11,7 @@ def eval_model(device, model, dataloader, loss_fn) -> Tuple[float, float, float]
         for x, y in dataloader:
             # Move to corresponding device
             x = x.to(device)
+            x = x.reshape((x.size(0), 81, 10))  # For RNN
             y = y.to(device)
             # Forward
             y_hat_test = model(x)  # Out shape -> (batch, 729, 1, 1)

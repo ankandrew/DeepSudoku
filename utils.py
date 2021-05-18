@@ -26,10 +26,10 @@ def seed_all(seed: int = 1234) -> None:
     torch.backends.cudnn.benchmark = False
 
 
-def verify_solution(y_hat: torch.Tensor, y: torch.Tensor = None) -> None:
+def print_accuracies(y_hat: torch.Tensor, y: torch.Tensor = None) -> None:
     """
-    Verify if predicted grids `y_hat` are valid solutions
-    and compare also to ground truth `y` if passed
+    Verify and show if predicted grids `y_hat` are valid
+    solutions and compare also to ground truth `y` if passed
 
     :param y_hat: Predictions with shape (batch, 9, 9)
     :param y: Optional ground truth with shape (batch, 9, 9)

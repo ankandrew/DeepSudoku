@@ -55,6 +55,9 @@ class Generator(Validator):
             m, n = grid.shape[0] // 3, grid.shape[1]
             # Shuffle row-group-wise
             np.random.shuffle(grid.reshape(m, -1, n))
+            # Shuffle column-group-wise
+            # np.random.shuffle(grid.transpose(0, 2, 1).reshape(m, -1, n))
+            # grid = grid.transpose(0, 2, 1)
         # Validate
         if not self.validate(grid):
             grid = None

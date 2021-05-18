@@ -1,1 +1,1 @@
-from .model import SudokuMLP, SudokuConv, MultiBranchSudoku
+from .model import SudokuMLP, SudokuConv, MultiBranchSudoku, RNN
