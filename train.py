@@ -82,7 +82,7 @@ def main():
     parser.add_argument('--n-test', type=int, default=2_500,
                         help='Number of sudokus to generate for test (default = 2 500)')
     parser.add_argument('--device', type=str, default='cuda',
-                        help='Device to be used for training/testing (default = cpu)')
+                        help='Device to be used for training/testing (default = cuda)')
     args = parser.parse_args()
 
     # # Testing
@@ -125,18 +125,7 @@ def main():
     print(f'{"#" * 40}\n--- Pre-Training ----\n{"#" * 40}')
     # Train loop
     start = timer()
-    model2, optimizer2 = train(args, model, optimizer, loss_fn, train_loader, test_loader)
-    print(f'Time taken {timer() - start} s')
-
-    print(f'{"#" * 40}\n--- Training ----\n{"#" * 40}')
-    train_dataset_2 = SudokuDataset(n=args.n_train, transform=ToTensor(one_hot=True), from_generator=False)
-    test_dataset_2 = SudokuDataset(n=args.n_test, transform=ToTensor(one_hot=True), from_generator=False)
-    train_loader_2 = DataLoader(train_dataset_2, batch_size=args.batch_size, shuffle=True)
-    test_loader_2 = DataLoader(test_dataset_2, batch_size=args.batch_size, shuffle=False)
-    start = timer()
-    optimizer = optim.Adam(model2.parameters(), lr=1e-4)  # smaller lr
-    optimizer.load_state_dict(optimizer2.state_dict())
-    _, _ = train(args, model2, optimizer, loss_fn, train_loader_2, test_loader_2)
+    model2, _ = train(args, model, optimizer, loss_fn, train_loader, test_loader)
     print(f'Time taken {timer() - start} s')
 
     # Save best model
