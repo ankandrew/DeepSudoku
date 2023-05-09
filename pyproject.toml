@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "sudoku-rl"
+version = "0.1.0"
+description = "Solving Sudoku with RL"
+authors = ["ankandrew <61120139+ankandrew@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{ include = "sudoku_rl" }]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^1.24.3"
+gymnasium = "^0.28.1"
+stable-baselines3 = "2.0.0a5"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.2.2"
+
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.12.0"
+black = "^23.3.0"
+pylint = "^2.17.2"
+mypy = "^1.2.0"
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+src_paths = ["sudoku_rl", "test"]
+line_length = 100
+profile = "black"
+
+[tool.pylint]
+good-names = "id,n,m"
+no-docstring-rgx = "^__|^test_"
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
