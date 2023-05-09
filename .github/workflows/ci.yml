@@ -18,6 +18,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+
       - name: Install poetry
         run: pipx install poetry
 
