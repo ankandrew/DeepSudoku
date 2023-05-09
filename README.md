@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build status](https://github.com/ankandrew/DeepSudoku/actions/workflows/ci/badge.svg)](https://travis-ci.com/ankandrew/DeepSudoku)
+[![Build status](https://github.com/ankandrew/DeepSudoku/actions/workflows/ci/badge.svg)](https://github.com/ankandrew/DeepSudoku/actions/workflows/ci/badge.svg)
 
 
 ![Deep Sudoku Image](assets/Sudoku_Github.png "Title")
