@@ -56,5 +56,28 @@ def validate_axis(grid: np.ndarray, axis: int) -> bool:
         raise ValueError("Axis must be equal to 0 or 1")
 
 
-def is_sudoku_valid(grid: np.ndarray) -> bool:
+def has_no_dupes(arr: np.ndarray) -> bool:
+    arr = arr[arr != 0]  # Ignore zeros
+    return len(arr) == len(set(arr))  # No duplicates
+
+
+def is_unsolved_sudoku_valid(sudoku: np.ndarray) -> bool:
+    # Check rows and columns
+    for i in range(9):
+        row = sudoku[i, :]
+        col = sudoku[:, i]
+        if not has_no_dupes(row) or not has_no_dupes(col):
+            return False
+
+    # Check sub-grids
+    for i in range(0, 9, 3):
+        for j in range(0, 9, 3):
+            subgrid = sudoku[i : i + 3, j : j + 3].flatten()
+            if not has_no_dupes(subgrid):
+                return False
+
+    return True
+
+
+def is_solved_sudoku_valid(grid: np.ndarray) -> bool:
     return val_sub_grids(grid) and validate_axis(grid, axis=0) and validate_axis(grid, axis=1)
