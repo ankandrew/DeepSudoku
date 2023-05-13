@@ -2,7 +2,8 @@
 Test env module
 """
 import numpy as np
-from gymnasium.spaces import Discrete, Box
+from gymnasium.spaces import Box, Discrete
+
 from sudoku_rl.env import SudokuEnv, SudokuReward
 
 
@@ -61,4 +62,3 @@ def test_reset_changes_grid():
     new_grid = env.play_grid.copy()
     with np.testing.assert_raises(AssertionError):
         np.testing.assert_array_equal(old_grid, new_grid)
-
