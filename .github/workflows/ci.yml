@@ -35,8 +35,8 @@ jobs:
       - name: Run Ruff
         run: poetry run ruff check sudoku_rl test
 
-#      - name: Run mypy
-#        run: poetry run mypy -p sudoku_rl -p test
+      - name: Run mypy
+        run: poetry run mypy -p sudoku_rl -p test
 
       - name: Run tests
         run: poetry run pytest

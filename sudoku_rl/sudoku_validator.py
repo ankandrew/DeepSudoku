@@ -34,7 +34,7 @@ def val_sub_grids(grid: np.ndarray) -> bool:
     # Compare if values are the same as [1, 2, ..., 9]
     mask = grid == EXPECTED_VALUES
     # All must be true
-    return np.all(mask)
+    return np.all(mask)  # type: ignore
 
 
 def validate_axis(grid: np.ndarray, axis: int) -> bool:
@@ -48,10 +48,10 @@ def validate_axis(grid: np.ndarray, axis: int) -> bool:
     """
     if axis == 1:
         grid = np.sort(grid, axis=1)
-        return np.all(grid == EXPECTED_VALUES)
+        return np.all(grid == EXPECTED_VALUES)  # type: ignore
     elif axis == 0:
         grid = np.sort(grid, axis=0)
-        return np.all(grid == np.expand_dims(EXPECTED_VALUES, axis=0).T)
+        return np.all(grid == np.expand_dims(EXPECTED_VALUES, axis=0).T)  # type: ignore
     else:
         raise ValueError("Axis must be equal to 0 or 1")
 
