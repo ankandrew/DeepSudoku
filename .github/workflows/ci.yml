@@ -32,9 +32,9 @@ jobs:
       - name: Run black
         run: poetry run black . --check
 
-#      - name: Run pylint
-#        run: poetry run pylint sudoku_rl test
-#
+      - name: Run Ruff
+        run: poetry run ruff check sudoku_rl test
+
 #      - name: Run mypy
 #        run: poetry run mypy -p sudoku_rl -p test
 
