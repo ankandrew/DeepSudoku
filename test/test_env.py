@@ -3,6 +3,7 @@ Test env module
 """
 import numpy as np
 from gymnasium.spaces import Box, Discrete
+from stable_baselines3.common import env_checker
 
 from sudoku_rl.env import SudokuEnv, SudokuReward
 
@@ -62,3 +63,7 @@ def test_reset_changes_grid():
     new_grid = env.play_grid.copy()
     with np.testing.assert_raises(AssertionError):
         np.testing.assert_array_equal(old_grid, new_grid)
+
+
+def test_env_is_valid() -> None:
+    env_checker.check_env(SudokuEnv())
