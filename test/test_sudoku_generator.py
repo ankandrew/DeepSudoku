@@ -9,7 +9,7 @@ from sudoku_rl import sudoku_generator, sudoku_validator
 def test_generate_9x9_sudoku_valid() -> None:
     for _ in range(1_000):
         solved_sudoku, _ = sudoku_generator.generate_9x9_sudoku()
-        assert sudoku_validator.is_sudoku_valid(solved_sudoku)
+        assert sudoku_validator.is_solved_sudoku_valid(solved_sudoku)
 
 
 def test_generate_9x9_sudoku_mask_valid() -> None:

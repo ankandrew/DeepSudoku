@@ -78,7 +78,7 @@ sudoku = np.array(
         [7, 6, 2, 4, 8, 5, 3, 1, 9]
     ], dtype=np.int8)
 
-print(sudoku_validator.is_sudoku_valid(sudoku))
+print(sudoku_validator.is_solved_sudoku_valid(sudoku))
 ```
 
 ### Train
