@@ -22,14 +22,17 @@ class SudokuEnv(gym.Env):
 
     metadata = {"render.modes": ["human"]}
 
-    def __init__(self, arg1, arg2):
+    def __init__(self):
         super().__init__()
         self.action_space = spaces.Discrete(9 * 9 * 9)
-        self.observation_space = spaces.Box(low=0, high=9, shape=(9, 9), dtype=np.uint8)
+        self.observation_space = spaces.Box(low=0, high=9, shape=(9 * 9,), dtype=np.int8)
         self.solved_grid, self.play_grid = sudoku_generator.generate_9x9_sudoku()
 
     def _get_info(self):
         return {"unfilled_cells": np.count_nonzero(self.play_grid)}
+
+    def _get_obs(self):
+        return self.play_grid.flatten()
 
     def _play_action(self, action: int) -> SudokuReward:
         if 0 > action > 728:
@@ -59,7 +62,7 @@ class SudokuEnv(gym.Env):
 
     def _is_episode_done(self) -> bool:
         # If there are no more 0's the game terminated
-        return self.play_grid.all()
+        return True if self.play_grid.all() else False
 
     def step(self, action: int):
         terminated = self._is_episode_done()
@@ -67,12 +70,13 @@ class SudokuEnv(gym.Env):
             reward = SudokuReward.WIN
         else:
             reward = self._play_action(action)
-        observation = self.play_grid
+        observation = self._get_obs()
         info = self._get_info()
         return observation, reward, terminated, False, info
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        _, play_grid = sudoku_generator.generate_9x9_sudoku()
+        self.solved_grid, self.play_grid = sudoku_generator.generate_9x9_sudoku()
+        observation = self._get_obs()
         info = self._get_info()
-        return self.play_grid, info
+        return observation, info
