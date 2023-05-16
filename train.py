@@ -5,7 +5,7 @@ from stable_baselines3 import PPO
 
 from sudoku_rl.env import SudokuEnv
 
-TOTAL_TIMESTEPS = 1_000_000
+TOTAL_TIMESTEPS = 2_000_000
 
 env = SudokuEnv()
 # Define and Train the agent
