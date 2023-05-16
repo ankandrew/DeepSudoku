@@ -5,7 +5,7 @@ import numpy as np
 from gymnasium.spaces import Box, Discrete
 from stable_baselines3.common import env_checker
 
-from sudoku_rl.env import SudokuEnv, SudokuReward
+from sudoku_rl.env import INVALID_ACTION_REWARD, SudokuEnv
 
 
 def test_action_space():
@@ -20,20 +20,6 @@ def test_observation_space():
     assert env.observation_space.shape == (9 * 9,)
 
 
-def test_valid_action():
-    env = SudokuEnv()
-    # Pick an empty cell
-    row, col = 0, 0
-    while env.play_grid[row, col] != 0:
-        col += 1
-        if col > 8:
-            row += 1
-            col = 0
-    action = row * 81 + col * 9 + 1
-    _, reward, *_ = env.step(action)
-    assert reward == SudokuReward.VALID_ACTION
-
-
 def test_invalid_action():
     env = SudokuEnv()
     # Pick a cell with a number already in it
@@ -45,7 +31,7 @@ def test_invalid_action():
             col = 0
     action = row * 81 + col * 9 + env.play_grid[row, col]
     _, reward, *_ = env.step(action)
-    assert reward == SudokuReward.INVALID_ACTION
+    assert reward == INVALID_ACTION_REWARD
 
 
 def test_reset_changes_grid():

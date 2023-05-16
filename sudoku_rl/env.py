@@ -2,7 +2,6 @@
 Check: https://www.gymlibrary.dev/content/environment_creation/
 """
 
-from enum import IntEnum
 from typing import Tuple
 
 import gymnasium as gym
@@ -11,11 +10,9 @@ from gymnasium import spaces
 
 from sudoku_rl import sudoku_generator, sudoku_validator
 
-
-class SudokuReward(IntEnum):
-    WIN = 1.0
-    VALID_ACTION = 0.0
-    INVALID_ACTION = -0.1
+WIN_REWARD: float = 1.0
+VALID_ACTION_REWARD: float = 0.0
+INVALID_ACTION_REWARD: float = -0.1
 
 
 class SudokuEnv(gym.Env):
@@ -35,7 +32,7 @@ class SudokuEnv(gym.Env):
     def _get_obs(self):
         return self.play_grid.flatten()
 
-    def _play_action(self, action: int) -> Tuple[SudokuReward, bool]:
+    def _play_action(self, action: int) -> Tuple[float, bool]:
         if 0 > action > 728:
             raise ValueError(f"Action must range in between [0, 728], got {action}")
         # Determine the row number (0-8)
@@ -52,14 +49,14 @@ class SudokuEnv(gym.Env):
             if sudoku_validator.is_unsolved_sudoku_valid(play_grid_2):
                 # Persist the new grid
                 self.play_grid = play_grid_2
-                return SudokuReward.VALID_ACTION, self._is_episode_done()
+                return VALID_ACTION_REWARD, self._is_episode_done()
             else:
                 # We don't save the grid that ended up in an invalid Sudoku state
                 # (grid stayed the same)
-                return SudokuReward.INVALID_ACTION, False
+                return INVALID_ACTION_REWARD, False
         else:
             # Negative reward is given because there is already a number in the cell
-            return SudokuReward.INVALID_ACTION, False
+            return INVALID_ACTION_REWARD, False
 
     def _is_episode_done(self) -> bool:
         # If there are no more 0's the game terminated
