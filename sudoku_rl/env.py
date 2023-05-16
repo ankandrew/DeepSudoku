@@ -3,6 +3,7 @@ Check: https://www.gymlibrary.dev/content/environment_creation/
 """
 
 from enum import IntEnum
+from typing import Tuple
 
 import gymnasium as gym
 import numpy as np
@@ -29,12 +30,12 @@ class SudokuEnv(gym.Env):
         self.solved_grid, self.play_grid = sudoku_generator.generate_9x9_sudoku()
 
     def _get_info(self):
-        return {"unfilled_cells": np.count_nonzero(self.play_grid)}
+        return {"filled_cells": np.count_nonzero(self.play_grid)}
 
     def _get_obs(self):
         return self.play_grid.flatten()
 
-    def _play_action(self, action: int) -> SudokuReward:
+    def _play_action(self, action: int) -> Tuple[SudokuReward, bool]:
         if 0 > action > 728:
             raise ValueError(f"Action must range in between [0, 728], got {action}")
         # Determine the row number (0-8)
@@ -51,25 +52,21 @@ class SudokuEnv(gym.Env):
             if sudoku_validator.is_unsolved_sudoku_valid(play_grid_2):
                 # Persist the new grid
                 self.play_grid = play_grid_2
-                return SudokuReward.VALID_ACTION
+                return SudokuReward.VALID_ACTION, self._is_episode_done()
             else:
                 # We don't save the grid that ended up in an invalid Sudoku state
                 # (grid stayed the same)
-                return SudokuReward.INVALID_ACTION
+                return SudokuReward.INVALID_ACTION, False
         else:
             # Negative reward is given because there is already a number in the cell
-            return SudokuReward.INVALID_ACTION
+            return SudokuReward.INVALID_ACTION, False
 
     def _is_episode_done(self) -> bool:
         # If there are no more 0's the game terminated
         return True if self.play_grid.all() else False
 
     def step(self, action: int):
-        terminated = self._is_episode_done()
-        if terminated and sudoku_validator.is_solved_sudoku_valid(self.play_grid):
-            reward = SudokuReward.WIN
-        else:
-            reward = self._play_action(action)
+        reward, terminated = self._play_action(action)
         observation = self._get_obs()
         info = self._get_info()
         return observation, reward, terminated, False, info

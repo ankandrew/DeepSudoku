@@ -48,14 +48,6 @@ def test_invalid_action():
     assert reward == SudokuReward.INVALID_ACTION
 
 
-def test_win_episode():
-    env = SudokuEnv()
-    env.play_grid = env.solved_grid
-    _, reward, done, *_ = env.step(0)
-    assert reward == SudokuReward.WIN
-    assert done
-
-
 def test_reset_changes_grid():
     env = SudokuEnv()
     old_grid = env.play_grid.copy()
