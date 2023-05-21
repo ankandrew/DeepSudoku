@@ -61,7 +61,10 @@ def has_no_dupes(arr: np.ndarray) -> bool:
     return len(arr) == len(set(arr))  # No duplicates
 
 
-def is_unsolved_sudoku_valid(sudoku: np.ndarray) -> bool:
+def is_sudoku_valid(sudoku: np.ndarray) -> bool:
+    """
+    Validates that any type of sudoku grid is valid.
+    """
     # Check rows and columns
     for i in range(9):
         row = sudoku[i, :]
@@ -80,4 +83,7 @@ def is_unsolved_sudoku_valid(sudoku: np.ndarray) -> bool:
 
 
 def is_solved_sudoku_valid(grid: np.ndarray) -> bool:
+    """
+    Validate that a full sudoku (solved) is valid.
+    """
     return val_sub_grids(grid) and validate_axis(grid, axis=0) and validate_axis(grid, axis=1)

@@ -53,7 +53,7 @@ class SudokuEnv(gym.Env):
             play_grid_2 = self.play_grid.copy()
             # Add the number to the grid at the corresponding position
             play_grid_2[row, col] = num
-            if sudoku_validator.is_unsolved_sudoku_valid(play_grid_2):
+            if sudoku_validator.is_sudoku_valid(play_grid_2):
                 # Persist the new grid
                 self.play_grid = play_grid_2
                 return VALID_ACTION_REWARD, self.is_episode_done()
