@@ -43,3 +43,24 @@ def parse_sudoku_from_str(sudoku_str: str) -> np.ndarray:
     """
     sudoku_str = sudoku_str.replace(" ", "").replace("\n", "")
     return np.asarray([int(i) for i in sudoku_str], dtype=np.int8).reshape((9, 9))
+
+
+def sudoku_9x9_to_str(grid: np.ndarray) -> str:
+    """
+    Return a String representation of the given 9x9 Sudoku grid.
+
+    :param grid: Numpy array with the Sudoku grid.
+    :return: String representation of the given Sudoku.
+    """
+    sudoku_str = ""
+    for i in range(9):
+        if i % 3 == 0 and i != 0:
+            sudoku_str += "- - - - - - - - - - - \n"
+        for j in range(9):
+            if j % 3 == 0 and j != 0:
+                sudoku_str += "| "
+            if j == 8:
+                sudoku_str += f"{grid[i][j]}\n"
+            else:
+                sudoku_str += f"{grid[i][j]} "
+    return sudoku_str
