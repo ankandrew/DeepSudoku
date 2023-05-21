@@ -19,7 +19,7 @@ def seed_all(seed: int = 1984) -> None:
     random.seed(seed)
 
 
-def parse_str(sudoku_str: str) -> np.ndarray:
+def parse_sudoku_from_str(sudoku_str: str) -> np.ndarray:
     """
     Parse a sudoku from a string to a np array.
 
