@@ -11,8 +11,11 @@ from gymnasium import spaces
 from sudoku_rl import sudoku_generator, sudoku_validator
 
 WIN_REWARD: float = 1.0
+"""Ultimate reward when agent fills all the Sudoku cells and it's a valid grid."""
 VALID_ACTION_REWARD: float = 0.01
+"""Reward given when the agent plays a valid number in a playable cell."""
 INVALID_ACTION_REWARD: float = -0.02
+"""Negative reward given to the agent when tries to fill in cells that were originally filled in."""
 
 
 class SudokuEnv(gym.Env):
@@ -29,8 +32,6 @@ class SudokuEnv(gym.Env):
     def _new_sudoku(self) -> None:
         self.solved_grid, self.play_grid = sudoku_generator.generate_9x9_sudoku()
         self.solved_grid.flags.writeable = False
-        self.rigid_grid = self.play_grid.copy()
-        self.rigid_grid.flags.writeable = False
 
     def _get_info(self):
         return {"filled_cells": np.count_nonzero(self.play_grid)}
@@ -47,8 +48,7 @@ class SudokuEnv(gym.Env):
         col = (action // 9) % 9
         # Determine the number to add (1-9)
         num = action % 9 + 1
-        # We can play on any cell as long as we don't modify the rigid grid
-        if self.rigid_grid[row, col] == 0:
+        if self.play_grid[row, col] == 0:
             # Check if the played action is valid based on Sudoku rules
             play_grid_2 = self.play_grid.copy()
             # Add the number to the grid at the corresponding position
