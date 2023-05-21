@@ -36,7 +36,7 @@ def parse_sudoku_from_str(sudoku_str: str) -> np.ndarray:
           8 0 0 0 9 0 3 0 5
           3 0 0 8 2 0 0 1 0
       '''
-    array_2d = parse_str(game)
+    array_2d = parse_sudoku_from_str(game)
 
     :param sudoku_str: String representing a Sudoku where rows are separated by a new line.
     :return: Numpy matrix representing the given Sudoku.
