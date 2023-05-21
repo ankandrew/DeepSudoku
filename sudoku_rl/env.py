@@ -56,7 +56,10 @@ class SudokuEnv(gym.Env):
             if sudoku_validator.is_sudoku_valid(play_grid_2):
                 # Persist the new grid
                 self.play_grid = play_grid_2
-                return VALID_ACTION_REWARD, self.is_episode_done()
+                if self.is_episode_done():
+                    return WIN_REWARD, True
+                else:
+                    return VALID_ACTION_REWARD, False
             else:
                 # We don't save the grid that ended up in an invalid Sudoku state
                 # (grid stayed the same)
