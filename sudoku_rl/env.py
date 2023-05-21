@@ -56,7 +56,7 @@ class SudokuEnv(gym.Env):
             if sudoku_validator.is_unsolved_sudoku_valid(play_grid_2):
                 # Persist the new grid
                 self.play_grid = play_grid_2
-                return VALID_ACTION_REWARD, self._is_episode_done()
+                return VALID_ACTION_REWARD, self.is_episode_done()
             else:
                 # We don't save the grid that ended up in an invalid Sudoku state
                 # (grid stayed the same)
@@ -65,7 +65,7 @@ class SudokuEnv(gym.Env):
             # Negative reward is given because there is already a number in the cell
             return INVALID_ACTION_REWARD, False
 
-    def _is_episode_done(self) -> bool:
+    def is_episode_done(self) -> bool:
         # If there are no more 0's the game terminated
         return True if self.play_grid.all() else False
 
