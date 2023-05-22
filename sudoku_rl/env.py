@@ -12,9 +12,9 @@ from sudoku_rl import sudoku_generator, sudoku_validator
 
 WIN_REWARD: float = 1.0
 """Ultimate reward when agent fills all the Sudoku cells and it's a valid grid."""
-VALID_ACTION_REWARD: float = 0.01
+VALID_ACTION_REWARD: float = 0.1
 """Reward given when the agent plays a valid number in a playable cell."""
-INVALID_ACTION_REWARD: float = -0.02
+INVALID_ACTION_REWARD: float = -0.1
 """Negative reward given to the agent when tries to fill in cells that were originally filled in."""
 
 
@@ -54,19 +54,18 @@ class SudokuEnv(gym.Env):
             # Add the number to the grid at the corresponding position
             play_grid_2[row, col] = num
             if sudoku_validator.is_sudoku_valid(play_grid_2):
-                # Persist the new grid
-                self.play_grid = play_grid_2
                 if self.is_episode_done():
                     return WIN_REWARD, True
                 else:
+                    # Game continues, persist the new grid
+                    self.play_grid = play_grid_2
                     return VALID_ACTION_REWARD, False
             else:
-                # We don't save the grid that ended up in an invalid Sudoku state
-                # (grid stayed the same)
-                return INVALID_ACTION_REWARD, False
+                # We ended up in an invalid Sudoku state
+                return INVALID_ACTION_REWARD, True
         else:
-            # Negative reward is given because there is already a number in the cell
-            return INVALID_ACTION_REWARD, False
+            # There is already a number in the cell
+            return INVALID_ACTION_REWARD, True
 
     def is_episode_done(self) -> bool:
         # If there are no more 0's the game terminated
