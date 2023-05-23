@@ -8,7 +8,7 @@ import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
 
-from sudoku_rl import sudoku_generator, sudoku_validator
+from sudoku_rl import sudoku_generator, sudoku_validator, utils
 
 WIN_REWARD: float = 1.0
 """Ultimate reward when agent fills all the Sudoku cells and it's a valid grid."""
@@ -25,8 +25,11 @@ class SudokuEnv(gym.Env):
 
     def __init__(self):
         super().__init__()
+        # In each cell of the 9x9 grid we can put a value from [1, 9], hence 9**3
         self.action_space = spaces.Discrete(9 * 9 * 9)
-        self.observation_space = spaces.Box(low=0, high=9, shape=(9 * 9,), dtype=np.int8)
+        # In each cell of the 9x9 grid we can observe a value from [0, 9] where 0 indicates
+        # that a value needs to be filled
+        self.observation_space = spaces.MultiBinary(9 * 9 * 10)
         self._new_sudoku()
 
     def _new_sudoku(self) -> None:
@@ -37,7 +40,7 @@ class SudokuEnv(gym.Env):
         return {"filled_cells": np.count_nonzero(self.play_grid)}
 
     def _get_obs(self):
-        return self.play_grid.flatten()
+        return utils.one_hot_9x9_sudoku(self.play_grid).ravel()
 
     def _play_action(self, action: int) -> Tuple[float, bool]:
         if 0 > action > 728:

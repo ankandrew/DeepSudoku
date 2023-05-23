@@ -3,7 +3,7 @@ Test env module
 """
 import numpy as np
 import pytest
-from gymnasium.spaces import Box, Discrete
+from gymnasium.spaces import Discrete, MultiBinary
 from stable_baselines3.common import env_checker
 
 from sudoku_rl.env import INVALID_ACTION_REWARD, SudokuEnv
@@ -20,8 +20,8 @@ def test_action_space(env: SudokuEnv):
 
 
 def test_observation_space(env: SudokuEnv):
-    assert isinstance(env.observation_space, Box)
-    assert env.observation_space.shape == (9 * 9,)
+    assert isinstance(env.observation_space, MultiBinary)
+    assert env.observation_space.shape == (9 * 9 * 10,)
 
 
 def test_invalid_action(env: SudokuEnv):

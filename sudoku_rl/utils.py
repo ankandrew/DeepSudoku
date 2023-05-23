@@ -13,10 +13,28 @@ def seed_all(seed: int = 1984) -> None:
     https://discuss.pytorch.org/t/reproducibility-with-all-the-bells-and-whistles/81097
 
     :param seed: Seed to use in numpy, torch and python random module
+    :return: None
     """
     LOGGER.info("[ Using Seed : %s ]", seed)
     np.random.seed(seed)
     random.seed(seed)
+
+
+def one_hot_9x9_sudoku(grid: np.ndarray) -> np.ndarray:
+    """
+    One-hot encode each cell value of all the grid.
+    Modified from: https://stackoverflow.com/a/36960495/4544940
+
+    :param grid: Sudoku grid to one-hot encode.
+    :return: Sudoku one-hot encoded.
+    """
+    assert grid.shape == (9, 9)
+    grid_cells = 81
+    n_cols = 10
+    out = np.zeros((grid_cells, n_cols), dtype=np.int8)
+    out[np.arange(grid_cells), grid.ravel()] = 1
+    out.shape = (9, 9, 10)
+    return out
 
 
 def parse_sudoku_from_str(sudoku_str: str) -> np.ndarray:
