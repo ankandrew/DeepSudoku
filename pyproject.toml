@@ -12,6 +12,7 @@ numpy = "^1.24.3"
 gymnasium = "^0.28.1"
 stable-baselines3 = "2.0.0a9"
 sb3-contrib = "2.0.0a9"
+tensorboard = "^2.13.0"
 
 
 [tool.poetry.group.test.dependencies]
