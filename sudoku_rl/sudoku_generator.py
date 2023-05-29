@@ -1,3 +1,4 @@
+import random
 from typing import Tuple
 
 import numpy as np
@@ -5,7 +6,11 @@ import numpy as np
 
 def _mask_9x9_sudoku(grid: np.ndarray) -> np.ndarray:
     grid_copy = grid.copy()
-    erase_vol = np.concatenate((np.ones(17, dtype=np.int8), np.zeros(64, dtype=np.int8)))
+    keep_numbers = random.randint(17, 80)
+    mask_numbers = 81 - keep_numbers
+    erase_vol = np.concatenate(
+        (np.ones(keep_numbers, dtype=np.int8), np.zeros(mask_numbers, dtype=np.int8))
+    )
     np.random.shuffle(erase_vol)
     return grid_copy * erase_vol.reshape(9, 9)
 
