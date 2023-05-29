@@ -10,11 +10,11 @@ from gymnasium import spaces
 
 from sudoku_rl import sudoku_generator, sudoku_validator, utils
 
-WIN_REWARD: float = 1.0
+WIN_REWARD: float = 1
 """Ultimate reward when agent fills all the Sudoku cells and it's a valid grid."""
 VALID_ACTION_REWARD: float = 0.1
 """Reward given when the agent plays a valid number in a playable cell."""
-INVALID_ACTION_REWARD: float = -0.1
+INVALID_ACTION_REWARD: float = -1
 """Negative reward given to the agent when tries to fill in cells that were originally filled in."""
 
 
@@ -43,7 +43,7 @@ class SudokuEnv(gym.Env):
         return utils.one_hot_9x9_sudoku(self.play_grid).ravel()
 
     def _play_action(self, action: int) -> Tuple[float, bool]:
-        if 0 > action > 728:
+        if not 0 <= action <= 728:
             raise ValueError(f"Action must range in between [0, 728], got {action}")
         # Determine the row number (0-8)
         row = action // 81
@@ -72,7 +72,7 @@ class SudokuEnv(gym.Env):
 
     def is_episode_done(self) -> bool:
         # If there are no more 0's the game terminated
-        return True if self.play_grid.all() else False
+        return np.count_nonzero(self.play_grid == 0) == 0
 
     def step(self, action: int):
         reward, terminated = self._play_action(action)
