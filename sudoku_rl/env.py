@@ -12,9 +12,9 @@ from sudoku_rl import sudoku_generator, sudoku_validator, utils
 
 WIN_REWARD: float = 1
 """Ultimate reward when agent fills all the Sudoku cells and it's a valid grid."""
-VALID_ACTION_REWARD: float = 0.1
+VALID_ACTION_REWARD: float = 0.01
 """Reward given when the agent plays a valid number in a playable cell."""
-INVALID_ACTION_REWARD: float = -1
+INVALID_ACTION_REWARD: float = 0.0
 """Negative reward given to the agent when tries to fill in cells that were originally filled in."""
 
 
@@ -27,9 +27,7 @@ class SudokuEnv(gym.Env):
         super().__init__()
         # In each cell of the 9x9 grid we can put a value from [1, 9], hence 9**3
         self.action_space = spaces.Discrete(9 * 9 * 9)
-        # In each cell of the 9x9 grid we can observe a value from [0, 9] where 0 indicates
-        # that a value needs to be filled
-        self.observation_space = spaces.MultiBinary(9 * 9 * 10)
+        self.observation_space = spaces.Box(low=0, high=9, shape=(9, 9), dtype=np.int8)
         self._new_sudoku()
 
     def _new_sudoku(self) -> None:
@@ -40,7 +38,7 @@ class SudokuEnv(gym.Env):
         return {"filled_cells": np.count_nonzero(self.play_grid)}
 
     def _get_obs(self):
-        return utils.one_hot_9x9_sudoku(self.play_grid).ravel()
+        return self.play_grid.copy()
 
     def _play_action(self, action: int) -> Tuple[float, bool]:
         if not 0 <= action <= 728:

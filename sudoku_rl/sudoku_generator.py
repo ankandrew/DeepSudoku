@@ -6,7 +6,7 @@ import numpy as np
 
 def _mask_9x9_sudoku(grid: np.ndarray) -> np.ndarray:
     grid_copy = grid.copy()
-    keep_numbers = random.randint(17, 80)
+    keep_numbers = 18
     mask_numbers = 81 - keep_numbers
     erase_vol = np.concatenate(
         (np.ones(keep_numbers, dtype=np.int8), np.zeros(mask_numbers, dtype=np.int8))
