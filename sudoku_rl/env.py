@@ -2,7 +2,6 @@
 Check: https://www.gymlibrary.dev/content/environment_creation/
 """
 
-import random
 from dataclasses import astuple, dataclass
 from enum import IntEnum, auto
 
@@ -12,13 +11,13 @@ from gymnasium import spaces
 
 from sudoku_rl import sudoku_generator, sudoku_validator, utils
 
-WIN_REWARD: float = 1
+WIN_REWARD: float = 1.0
 """Ultimate reward when agent fills all the Sudoku cells and it's a valid grid."""
-VALID_ACTION_REWARD: float = 0.1
+VALID_ACTION_REWARD: float = 0.01
 """Reward given when the agent plays a valid number in a playable cell."""
 NO_REWARD: float = 0.0
 """No Reward"""
-INVALID_ACTION_REWARD: float = -1
+INVALID_ACTION_REWARD: float = -0.01
 """Negative reward given to the agent when tries to fill in cells that were originally filled in."""
 
 
@@ -88,7 +87,8 @@ class SudokuEnv(gym.Env):
         # that a value needs to be filled
         self.observation_space = spaces.MultiBinary(9 * 9 * 10)
         self._new_sudoku()
-        self.position = Position(row=random.randint(0, 8), col=random.randint(0, 8))
+        zero_idx = np.argwhere(self.play_grid == 0)[0]
+        self.position = Position(row=zero_idx[0], col=zero_idx[1])
 
     def _new_sudoku(self) -> None:
         self.solved_grid, self.play_grid = sudoku_generator.generate_9x9_sudoku()
@@ -142,18 +142,18 @@ class SudokuEnv(gym.Env):
             # Add the number to the grid at the corresponding position
             play_grid_2[self.position.row, self.position.col] = play_number
             if sudoku_validator.is_sudoku_valid(play_grid_2):
+                # Persist the new valid grid
+                self.play_grid = play_grid_2
                 if self.is_episode_done():
                     return ActionResult(reward=WIN_REWARD, terminated=True)
                 else:
-                    # Game continues, persist the new grid
-                    self.play_grid = play_grid_2
                     return ActionResult(reward=VALID_ACTION_REWARD, terminated=False)
             else:
                 # We ended up in an invalid Sudoku state
-                return ActionResult(reward=INVALID_ACTION_REWARD, terminated=False)
+                return ActionResult(reward=INVALID_ACTION_REWARD, terminated=True)
         else:
             # There is already a number in the cell
-            return ActionResult(reward=NO_REWARD, terminated=False)
+            return ActionResult(reward=INVALID_ACTION_REWARD, terminated=True)
 
     def is_episode_done(self) -> bool:
         # If there are no more 0's the game terminated
