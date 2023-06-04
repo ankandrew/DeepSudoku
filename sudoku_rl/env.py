@@ -65,10 +65,10 @@ class SudokuEnv(gym.Env):
                     return VALID_ACTION_REWARD, False
             else:
                 # We ended up in an invalid Sudoku state
-                return INVALID_ACTION_REWARD, True
+                return INVALID_ACTION_REWARD, False
         else:
             # There is already a number in the cell
-            return INVALID_ACTION_REWARD, True
+            return INVALID_ACTION_REWARD, False
 
     def is_episode_done(self) -> bool:
         # If there are no more 0's the game terminated
