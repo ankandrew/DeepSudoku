@@ -10,11 +10,11 @@ from gymnasium import spaces
 
 from sudoku_rl import sudoku_generator, sudoku_validator, utils
 
-WIN_REWARD: float = 1
+WIN_REWARD: float = 1.0
 """Ultimate reward when agent fills all the Sudoku cells and it's a valid grid."""
 VALID_ACTION_REWARD: float = 0.1
 """Reward given when the agent plays a valid number in a playable cell."""
-INVALID_ACTION_REWARD: float = -1
+INVALID_ACTION_REWARD: float = -0.01
 """Negative reward given to the agent when tries to fill in cells that were originally filled in."""
 
 
@@ -57,11 +57,11 @@ class SudokuEnv(gym.Env):
             # Add the number to the grid at the corresponding position
             play_grid_2[row, col] = num
             if sudoku_validator.is_sudoku_valid(play_grid_2):
+                # Game continues, persist the new grid
+                self.play_grid = play_grid_2
                 if self.is_episode_done():
                     return WIN_REWARD, True
                 else:
-                    # Game continues, persist the new grid
-                    self.play_grid = play_grid_2
                     return VALID_ACTION_REWARD, False
             else:
                 # We ended up in an invalid Sudoku state
